@@ -4,87 +4,74 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\task;
+use App\Http\Requests\TaskStoreRequest;
+use App\Http\Requests\TaskUpdateRequest;
 
 class taskController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('permission:edit task',['only'=> ['edit','update']]);
+        $this->middleware('permission:create task',['only'=> ['create','store']]);
+        $this->middleware('permission:delete task',['only'=> ['destroy']]);
+    }
+        
     public function index(Request $request)
+    {
+        $tasks = Task::query();
+        $pages=$request->get('page_record',);
+    
+        $sort = $request->get('sort');
+        $order = $request->get('order', 'asc'); 
+            
+        if ($sort === 'priority' || $sort === 'due_date') 
         {
-            $tasks = Task::query();
-    
-            $sort = $request->get('sort');
-            if ($sort == 'priority') {
-                $tasks->orderBy('priority');
-            } elseif ($sort == 'due_date') {
-                $tasks->orderBy('due_date');
-            }
-    
-            $status = $request->get('status');
-            if ($status) {
-                $tasks->where('status', $status);
-            }
-    
-            $tasks = $tasks->paginate(10);
-
-            return view('tasks.index', compact('tasks'));
-
+            $tasks->orderBy($sort, $order);
         }
+            
+        $status = $request->get('status');
+        if ($status) 
+        {
+            $tasks->where('status', $status);
+        }
+            
+        $tasks = $tasks->paginate($pages);
 
-public function create()
-{
-    return view('tasks.create');
-}
+        return view('tasks.index', compact('tasks'));
 
-public function store(Request $request)
-{
-    $this->validate($request, [
-        'title' => 'required|max:255',
-        'description' => 'required',
-        'priority' => 'required|integer|between:1,3',
-        'status' => 'required|in:pending,in_progress,completed',
-        'due_date' => 'nullable|date',
-    ]);
+    }
 
-    $task = Task::create([
-        'title' => $request->title,
-        'description' => $request->description,
-        'priority' => $request->priority,
-        'status' => $request->status,
-        'due_date' => $request->due_date,
-    ]);
+    public function create()
+    {
+        return view('tasks.create');
+    }
 
-    return redirect()->route('tasks.index');
-}
+    public function store(TaskStoreRequest  $request)
+    {
+        {
+            $task = Task::create($request->validated());
+            
+            return redirect()->route('tasks.index');
+        }
+    }
     
-public function edit(Task $task)
-{
-    return view('tasks.edit', compact('task'));
-}
+    public function edit( Task $task)
+    {
+        return view('tasks.edit', compact('task'));
+    }
 
-public function update(Request $request, Task $task)
-{
-    $this->validate($request, [
-        'title' => 'required|max:255',
-        'description' => 'required',
-        'priority' => 'required|integer|between:1,3',
-        'status' => 'required|in:pending,in_progress,completed',
-        'due_date' => 'nullable|date',
-    ]);
+    public function update(TaskUpdateRequest $request, Task $task)
+    {
+        $task->update($request->validated());
 
-    $task->update([
-        'title' => $request->title,
-        'description' => $request->description,
-        'priority' => $request->priority,
-        'status' => $request->status,
-        'due_date' => $request->due_date,
-    ]);
+        return redirect()->route('tasks.index');
+     }
+    public function destroy(Task $task)
+    {
+        $task->delete();
 
-    return redirect()->route('tasks.index');
-}
-public function destroy(Task $task)
-{
-    $task->delete();
-
-    return redirect()->route('tasks.index');
-}
+        return redirect()->route('tasks.index');
+    }
 
 }

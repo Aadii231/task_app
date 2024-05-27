@@ -1,90 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Task Management System') }}
+        </h2>
+    </x-slot>
 
-<body>
-    <br>
-    <br>
-    <div class="container text-center">
-        <h1>Task Management System</h1>
-        <br>
-        <h2>Task List</h2>   
-    </div>
-    <div class="container">
-        <form action="{{ route('tasks.index') }}" method="GET">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <select name="sort" class="form-select" id="sort">
-                        <option value="" @if(empty(request()->get('sort'))) selected @endif>Sort By...</option>
-                        <option value="priority" @if(request()->get('sort') == 'priority') selected @endif>Priority</option>
-                        <option value="due_date" @if(request()->get('sort') == 'due_date') selected @endif>Due Date</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <select name="status" class="form-select" id="status">
-                        <option value="" @if(empty(request()->get('status'))) selected @endif>Filter By Status...</option>
-                        <option value="pending" @if(request()->get('status') == 'pending') selected @endif>Pending</option>
-                        <option value="in_progress" @if(request()->get('status') == 'in_progress') selected @endif>In Progress</option>
-                        <option value="completed" @if(request()->get('status') == 'completed') selected @endif>Completed</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary">Filter & Sort</button>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-white-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="container card-body">
+                    <form action="{{ route('tasks.index') }}" method="GET">
+                        <div class="flex flex-wrap justify-between items-center">
+                            <div class="w-full sm:w-48 mb-3 sm:mb-0">
+                                <select name="sort" class="form-select" id="sort">
+                                    <option value="" {{ empty(request()->get('sort')) ? 'selected' : '' }}>Sort By...</option>
+                                    <option value="priority" {{ request()->get('sort') == 'priority' ? 'selected' : '' }}>Priority</option>
+                                    <option value="due_date" {{ request()->get('sort') == 'due_date' ? 'selected' : '' }}>Due Date</option>
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-48 mb-3 sm:mb-0">
+                                <select name="order" class="form-select" id="order">
+                                    <option value="asc" {{ empty(request()->get('order')) ? 'selected' : '' }}>Order By...</option>
+                                    <option value="asc" {{ request()->get('order') == 'Ascending' ? 'selected' : '' }}>Ascending</option>
+                                    <option value="desc" {{ request()->get('order') == 'Descending' ? 'selected' : '' }}>Descending</option>
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-48 mb-3 sm:mb-0">
+                                <select name="status" class="form-select" id="status">
+                                    <option value="" {{ empty(request()->get('status')) ? 'selected' : '' }}>Filter By Status...</option>
+                                    <option value="pending" {{ request()->get('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="in_progress" {{ request()->get('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                    <option value="completed" {{ request()->get('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                </select>
+                            </div>
+                            
+                            <div class="w-full sm:w-48 mb-3 sm:mb-0">
+                                <label for="page_record" class="block">Records per page</label>
+                                <input type="number" name="page_record" id="page_record" class="form-input">
+                            </div>
+                            <div class="w-full sm:w-48 mb-3 sm:mb-0">
+                                <x-primary-button class="mt-4" type="submit">
+                                    Filter and Sort
+                                </x-primary-button>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="table-auto w-full">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="px-4 py-2">Id</th>
+                                <th class="px-4 py-2">Title</th>
+                                <th class="px-4 py-2">Description</th>
+                                <th class="px-4 py-2">Priority</th>
+                                <th class="px-4 py-2">Status</th>
+                                <th class="px-4 py-2">Due Date</th>
+                                <th class="px-4 py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($tasks as $task)
+                            <tr>
+                                <td class="border px-4 py-2">{{ $task->id }}</td>
+                                <td class="border px-4 py-2">{{ $task->title }}</td>
+                                <td class="border px-4 py-2">{{ Str::limit($task->description, 50) }}</td>
+                                <td class="border px-4 py-2">{{ $task->priority }}</td>
+                                <td class="border px-4 py-2">{{ $task->status }}</td>
+                                <td class="border px-4 py-2">{{ $task->due_date }}</td>
+                                <td class="border px-4 py-2">
+                                    <a href="{{ route('tasks.edit', $task->id) }}" <x-primary-button class="mt-4" type="submit">
+                                        Edit
+                                    </x-primary-button>
+                                    </a>
+                                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" onclick="return confirm('Are you sure you want to delete this task?')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div>
+                        <a href="{{ route('tasks.create') }}" ><x-primary-button class="mt-4" type="submit">
+                            Create Task
+                        </x-primary-button></a>
+                    </div>
                 </div>
             </div>
-        </form>
-        <table class="table table-bordered">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Due Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($tasks as $task)
-                <tr>
-                    <td>{{ $task->title }}</td>
-                    <td>{{ Str::limit($task->description, 50) }}</td>
-                    <td>{{ $task->priority }}</td>
-                    <td>{{ $task->status }}</td>
-                    <td>{{ $task->due_date }}</td>
-                    <td>
-                        <a href="{{ route('tasks.edit',$task->id) }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure you want to delete this task?')">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                        </form>
-                        
-                    
-                    </td>
-
-
-
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div>
-            <a href="{{ route('tasks.create') }}" class="btn btn-primary mb-3">Create Task</a>
         </div>
     </div>
-    
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-
-</html>
+</x-app-layout>

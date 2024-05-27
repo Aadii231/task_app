@@ -1,57 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Create Task</title>
-</head>
-<body>
-    <br>
-    <br>
-<div class="container">
-    <h1>Create Task</h1>
-    <br>
-        <form action="{{ route('tasks.store') }}" method="POST">
-            @csrf
-    
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" name="title" class="form-control" id="title" value="{{ old('title') }}">
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Create Task') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-white-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+
+                <form action="{{ route('tasks.store') }}" method="POST">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" name="title" id="title" class="form-input mt-1 block w-full" value="{{ old('title') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" id="description" class="form-input mt-1 block w-full">{{ old('description') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+                        <select name="priority" id="priority" class="form-select mt-1 block w-full">
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select name="status" id="status" class="form-select mt-1 block w-full">
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="due_date" class="block text-sm font-medium text-gray-700">Due Date</label>
+                        <input type="date" name="due_date" id="due_date" class="form-input mt-1 block w-full" value="{{ old('due_date') }}">
+                    </div>
+
+                    <x-primary-button class="mt-4" type="submit">
+                        Create Task
+                    </x-primary-button></a>
+                </form>
             </div>
-    
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea name="description" class="form-control" id="description">{{ old('description') }}</textarea>
-            </div>
-    
-            <div class="mb-3">
-                <label for="priority" class="form-label">Priority</label>
-                <select name="priority" class="form-select" id="priority">
-                    <option value="1">Low</option>
-                    <option value="2">Medium</option>
-                    <option value="3">High</option>
-                </select>
-            </div>
-    
-            <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select name="status" class="form-select" id="status">
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="in_progress">Completed</option>
-                </select>
-            </div>
-    
-            <div class="mb-3">
-                <label for="due_date" class="form-label">Due Date</label>
-                <input type="date" name="due_date" class="form-control" id="due_date" value="{{ old('due_date') }}">
-            </div>
-    
-            <button type="submit" class="btn btn-primary">Create Task</button>
-        </form>
+        </div>
     </div>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+</x-app-layout>
